@@ -37,6 +37,7 @@ executables:
     dependencies:
     - TheMafsidan
     - yesod
+    - yesod-static
 
 tests:
   TheMafsidan-test:

@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-resolver: lts-9.14
-
-nix:
-  enable: true
-  packages:
-    - ncurses
-    - binutils
-    - zlib
-=======
 resolver: lts-9.15
 
 extra-deps: []
@@ -20,4 +10,3 @@ nix:
     - binutils
     - zlib
     - gcc
->>>>>>> git broke a bit

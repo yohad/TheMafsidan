@@ -6,33 +6,19 @@
 module Main where
 
 import Yesod
+import Yesod.Static
 
-data App = App
+newtype App = App { getStatic :: Static }
+
+staticFiles "src/static"
 
 mkYesod "App" [parseRoutes|
 / HomeR GET
+/static StaticR Static getStatic
 |]
 
 instance Yesod App
 
-<<<<<<< HEAD
-mainPage = do
-    [whamlet|
-             <head>
-               <h1>The Mafsidan
-               <h2>The Realest of News
-             <div>This is my personal website.
-                  My goal is to make it a safe haven for my weird ideas.
-                  The topics I think I'll talk about (but I'm not limiting my self) are Physics, Math, CS, Games, Music and Art.
-            |]
-    toWidget [cassius|
-        div
-            margin-left: 100x
-            margin-right: 100x
-        p
-            background-color: #171f28
-            color: #779ecd
-=======
 --getLogoR =
 --   sendFile typeJpeg "~/Haskell/TheMafsidan/src/The Mafsidan.png"
 
@@ -43,7 +29,7 @@ footer = do
 mainPage = do
     [whamlet|
              <head>
-               <img >
+               <img src=@{StaticR logo_png}/>
              <div class="text">
                <img src="../src/The Mafsidan.png" alt="The Realest of News">
                <h1>The Mafsidan
@@ -64,7 +50,6 @@ mainPage = do
             background-color: #ffb347
         img
             vertical-align: middle
->>>>>>> git broke a bit
     |]
 
 getHomeR :: Handler Html
@@ -73,4 +58,6 @@ getHomeR = defaultLayout $ do
     toWidget mainPage
 
 main :: IO ()
-main = warp 3000 App
+main = do
+    static@(Static settings) <- static "src/static"
+    warp 3000 $ App static

@@ -1,12 +1,16 @@
-resolver: lts-9.15
+resolver: lts-10.4
 
-extra-deps: []
+extra-deps:
+- yesod-markdown-0.11.4
+- pandoc-1.19.2.4
+- aeson-1.1.2.0
+- doctemplates-0.1.0.2
+- hslua-0.4.1
+- pandoc-types-1.17.0.5
+- skylighting-0.1.1.5
+- texmath-0.9.4.4
 
-nix:
-  enable: true
-  pure: true
-  packages:
-    - ncurses
-    - binutils
-    - zlib
-    - gcc
+#- git: https://github.com/yohad/th-lift.git
+#  commit: 077d35e196800c0cf2f77b0a935472058abc396e
+#- git: https://github.com/yohad/th-lift-instances.git
+#  commit: 3027cc4415eb9be18ed3278c37cff717fe676b28

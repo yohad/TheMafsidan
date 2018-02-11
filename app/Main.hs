@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -7,20 +8,74 @@ module Main where
 
 import Yesod
 import Yesod.Static
+import Yesod.Markdown
+
+import System.Directory
+import System.FilePath.Posix ( takeBaseName
+                             , takeFileName)
 
 newtype App = App { getStatic :: Static }
 
-staticFiles "src/static"
+staticFiles "static"
+postsDir = "./static/posts/"
 
 mkYesod "App" [parseRoutes|
 / HomeR GET
 /static StaticR Static getStatic
+/post/#String PostR GET
+/posts PostsR GET
 |]
 
-instance Yesod App
+instance Yesod App where
+  defaultLayout = layout
 
---getLogoR =
---   sendFile typeJpeg "~/Haskell/TheMafsidan/src/The Mafsidan.png"
+layout :: Widget -> Handler Html
+layout widget = do
+  pc <- widgetToPageContent $ do
+    widget
+    toWidget [cassius|
+                     body
+                       background-color: #ffb347
+                       width: 800px
+                       margin-left: auto
+                       margin-right: auto
+                     img
+                       vertical-align: middle
+                     |]
+  withUrlRenderer
+    [hamlet|
+           <html>
+             <head>
+               <img src=@{StaticR logo_png}>
+               ^{pageHead pc}
+             <body>
+               <article>
+                 ^{pageBody pc}
+           |]
+
+getPostsR :: Handler Html
+getPostsR = defaultLayout $ do
+  posts <- liftIO $ listDirectory postsDir
+  toWidget [whamlet|
+                   <h1>Post
+                   $forall post <- posts
+                     <a href=@{PostR post}>#{takeBaseName post}
+                   |]
+
+getPostR :: String -> Handler Html
+getPostR name = defaultLayout $ do
+  html <- liftIO $ markdownToHtml <$> markdownFromFile (postsDir ++ name)
+  md <- liftIO $ markdownFromFile (postsDir ++ name)
+  toWidget [whamlet|
+                   $maybe doc <- eitherToMaybe html
+                     #{doc}
+                   $nothing
+                     <p>Error, post does not exist.
+                   |]
+
+eitherToMaybe :: Either a b -> Maybe b
+eitherToMaybe (Left _) = Nothing
+eitherToMaybe (Right a) = Just a
 
 footer = do
     [whamlet|<i>This site is 100% type safe|]
@@ -28,10 +83,7 @@ footer = do
       
 mainPage = do
     [whamlet|
-             <head>
-               <img src=@{StaticR logo_png}/>
              <div class="text">
-               <img src="../src/The Mafsidan.png" alt="The Realest of News">
                <h1>The Mafsidan
                <h2>The Realest of News
                <p>This is my personal website.
@@ -39,19 +91,7 @@ mainPage = do
                   The topics I think I'll talk about (but I'm not limiting my self) are Physics, Math, CS, Games, Music and Art.
                ^{footer}
             |]
-    toWidget [cassius|
-        .text
-            width: 800px
-            margin-left: auto
-            margin-right: auto
-            background-color: #171f28
-            color: #779ecd
-        body
-            background-color: #ffb347
-        img
-            vertical-align: middle
-    |]
-
+      
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
     setTitle "The Mafsidan"
@@ -59,5 +99,5 @@ getHomeR = defaultLayout $ do
 
 main :: IO ()
 main = do
-    static@(Static settings) <- static "src/static"
+    static@(Static settings) <- static "static"
     warp 3000 $ App static

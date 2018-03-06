@@ -10,6 +10,9 @@ extra-deps:
 - skylighting-0.1.1.5
 - texmath-0.9.4.4
 
+packages:
+- .
+
 #- git: https://github.com/yohad/th-lift.git
 #  commit: 077d35e196800c0cf2f77b0a935472058abc396e
 #- git: https://github.com/yohad/th-lift-instances.git

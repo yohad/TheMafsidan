@@ -1,4 +1,3 @@
-20/2/2018
 # Grapefruit
 
 ## Intro

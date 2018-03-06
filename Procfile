@@ -1,1 +1,1 @@
-web: App
+web: stack exec App
